@@ -15,7 +15,7 @@ function getConfig() {
 async function shopifyFetch<T>(
   query: string,
   variables?: Record<string, unknown>,
-  options?: { noStore?: boolean },
+  options?: { noStore?: boolean; revalidate?: number; tag?: string },
 ): Promise<T | null> {
   const config = getConfig();
   if (!config) return null;
@@ -32,7 +32,12 @@ async function shopifyFetch<T>(
         body: JSON.stringify({ query, variables }),
         ...(options?.noStore
           ? { cache: "no-store" as const }
-          : { next: { revalidate: 3600, tags: ["shopify-products"] } }),
+          : {
+              next: {
+                revalidate: options?.revalidate ?? 3600,
+                tags: [options?.tag ?? "shopify-products"],
+              },
+            }),
       },
     );
 
@@ -438,4 +443,46 @@ export async function fetchProductVariantsByHandle(
       node.selectedOptions.map((opt) => [opt.name, opt.value]),
     ),
   }));
+}
+
+const SITE_BANNER_QUERY = `
+  query SiteBanner {
+    metaobjects(type: "pwg_site_banner", first: 1) {
+      nodes {
+        fields {
+          key
+          value
+        }
+      }
+    }
+  }
+`;
+
+export type SiteBanner = {
+  heading: string;
+  message: string;
+  buttonLabel: string;
+  buttonLink: string;
+};
+
+export async function fetchSiteBanner(): Promise<SiteBanner | null> {
+  const data = await shopifyFetch<{
+    metaobjects: { nodes: { fields: { key: string; value: string | null }[] }[] };
+  }>(SITE_BANNER_QUERY, undefined, { revalidate: 300, tag: "site-banner" });
+
+  const node = data?.metaobjects.nodes[0];
+  if (!node) return null;
+
+  const field = (key: string) =>
+    node.fields.find((f) => f.key === key)?.value?.trim() ?? "";
+  const message = field("message");
+  if (!message) return null;
+
+  const link = field("button_link");
+  return {
+    heading: field("heading"),
+    message,
+    buttonLabel: field("button_label"),
+    buttonLink: link.startsWith("/") ? link : "/shop",
+  };
 }

@@ -5,6 +5,7 @@ import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Price } from "@/components/price";
+import { SiteBanner } from "@/components/site-banner";
 import { getShopProducts, type Product } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -28,6 +29,8 @@ export default async function ShopPage() {
         image="/images/shopify-cdn/pwgartrangeone121_large.jpg"
         video={{ src: "/video/flavour-reveal.mp4" }}
       />
+
+      <SiteBanner />
 
       {products.length === 0 ? (
         <p className="bg-ink px-6 py-24 text-center text-sm text-paper-dim">
