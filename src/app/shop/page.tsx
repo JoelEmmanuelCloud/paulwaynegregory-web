@@ -4,7 +4,9 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { AddToCartButton } from "@/components/add-to-cart-button";
-import { getShopProducts, formatPrice, type Product } from "@/lib/products";
+import { Price } from "@/components/price";
+import { SiteBanner } from "@/components/site-banner";
+import { getShopProducts, type Product } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "Shop | Paul Wayne Gregory Chocolates",
@@ -27,6 +29,8 @@ export default async function ShopPage() {
         image="/images/shopify-cdn/pwgartrangeone121_large.jpg"
         video={{ src: "/video/flavour-reveal.mp4" }}
       />
+
+      <SiteBanner />
 
       {products.length === 0 ? (
         <p className="bg-ink px-6 py-24 text-center text-sm text-paper-dim">
@@ -139,9 +143,14 @@ function ProductCardBody({ product }: { product: Product }) {
         </h3>
         {product.status !== "coming-soon" && (
           <span className="whitespace-nowrap text-sm text-paper-dim">
-            {product.availableForSale
-              ? formatPrice(product.price)
-              : "Sold Out"}
+            {product.availableForSale ? (
+              <Price
+                price={product.price}
+                compareAtPrice={product.compareAtPrice}
+              />
+            ) : (
+              "Sold Out"
+            )}
           </span>
         )}
       </div>

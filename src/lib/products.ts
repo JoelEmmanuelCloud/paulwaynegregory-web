@@ -8,6 +8,7 @@ export type Product = {
   collection: "chocolate-art" | "truffles";
   name: string;
   price: number;
+  compareAtPrice?: number;
   hook: string;
   weight?: string;
   description: string[];
@@ -97,6 +98,10 @@ function toProduct(live: ShopifyProductSummary): Product {
         : "truffles",
     name: fields.website_name || live.title,
     price: live.price,
+    compareAtPrice:
+      live.compareAtPrice && live.compareAtPrice > live.price
+        ? live.compareAtPrice
+        : undefined,
     hook: fields.tagline ?? "",
     weight: fields.weight,
     description: htmlToParagraphs(live.descriptionHtml),

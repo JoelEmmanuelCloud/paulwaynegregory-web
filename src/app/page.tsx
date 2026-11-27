@@ -1,5 +1,6 @@
 import { HeroCarousel, type HeroChapter } from "@/components/hero-carousel";
 import { StoryGrid, type StoryCard } from "@/components/story-grid";
+import { SiteBanner } from "@/components/site-banner";
 
 const chapters: HeroChapter[] = [
   {
@@ -70,6 +71,8 @@ export default function Home() {
   return (
     <>
       <HeroCarousel chapters={chapters} />
+
+      <SiteBanner />
 
       <section className="bg-ink-raised px-6 py-24 text-center sm:px-10">
         <div className="mx-auto flex max-w-2xl flex-col gap-6">
