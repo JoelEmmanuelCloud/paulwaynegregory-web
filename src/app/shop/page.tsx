@@ -7,6 +7,7 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Price } from "@/components/price";
 import { SiteBanner } from "@/components/site-banner";
 import { getShopProducts, type Product } from "@/lib/products";
+import { fetchFirstShopSection } from "@/lib/shopify";
 
 export const metadata: Metadata = {
   title: "Shop | Paul Wayne Gregory Chocolates",
@@ -16,9 +17,24 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
-  const products = await getShopProducts();
-  const artCollection = products.filter((p) => p.collection === "chocolate-art");
-  const truffles = products.filter((p) => p.collection === "truffles");
+  const [products, firstSection] = await Promise.all([
+    getShopProducts(),
+    fetchFirstShopSection(),
+  ]);
+  const sections = [
+    {
+      key: "truffles",
+      title: "Truffles Collection",
+      products: products.filter((p) => p.collection === "truffles"),
+    },
+    {
+      key: "chocolate-art",
+      title: "Chocolate Art Collection",
+      products: products.filter((p) => p.collection === "chocolate-art"),
+    },
+  ]
+    .sort((a, b) => Number(b.key === firstSection) - Number(a.key === firstSection))
+    .filter((section) => section.products.length > 0);
 
   return (
     <>
@@ -37,21 +53,14 @@ export default async function ShopPage() {
           The shop is taking a short break. Please try again in a moment.
         </p>
       ) : (
-        <>
-          {artCollection.length > 0 && (
-            <ProductSection
-              title="Chocolate Art Collection"
-              products={artCollection}
-            />
-          )}
-          {truffles.length > 0 && (
-            <ProductSection
-              title="Truffles Collection"
-              products={truffles}
-              tone="raised"
-            />
-          )}
-        </>
+        sections.map((section, index) => (
+          <ProductSection
+            key={section.key}
+            title={section.title}
+            products={section.products}
+            tone={index % 2 === 1 ? "raised" : "base"}
+          />
+        ))
       )}
     </>
   );
