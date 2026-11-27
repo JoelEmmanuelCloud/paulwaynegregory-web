@@ -478,7 +478,7 @@ export type SiteBanner = {
 export async function fetchSiteBanner(): Promise<SiteBanner | null> {
   const data = await shopifyFetch<{
     metaobjects: { nodes: { fields: { key: string; value: string | null }[] }[] };
-  }>(SITE_BANNER_QUERY, undefined, { revalidate: 300, tag: "site-banner" });
+  }>(SITE_BANNER_QUERY, undefined, { revalidate: 60, tag: "site-settings" });
 
   const node = data?.metaobjects.nodes[0];
   if (!node) return null;
@@ -495,4 +495,29 @@ export async function fetchSiteBanner(): Promise<SiteBanner | null> {
     buttonLabel: field("button_label"),
     buttonLink: link.startsWith("/") ? link : "/shop",
   };
+}
+
+const SHOP_LAYOUT_QUERY = `
+  query ShopLayout {
+    metaobjects(type: "pwg_shop_layout", first: 1) {
+      nodes {
+        firstSection: field(key: "first_section") {
+          value
+        }
+      }
+    }
+  }
+`;
+
+export type ShopSection = "truffles" | "chocolate-art";
+
+export async function fetchFirstShopSection(): Promise<ShopSection> {
+  const data = await shopifyFetch<{
+    metaobjects: { nodes: { firstSection: { value: string } | null }[] };
+  }>(SHOP_LAYOUT_QUERY, undefined, { revalidate: 60, tag: "site-settings" });
+
+  return data?.metaobjects.nodes[0]?.firstSection?.value ===
+    "Chocolate Art Collection"
+    ? "chocolate-art"
+    : "truffles";
 }

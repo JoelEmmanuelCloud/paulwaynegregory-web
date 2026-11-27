@@ -17,6 +17,6 @@ export async function POST(request: Request) {
     return new Response(null, { status: 401 });
   }
   revalidateTag("shopify-products", { expire: 0 });
-  revalidateTag("site-banner", { expire: 0 });
+  revalidateTag("site-settings", { expire: 0 });
   return new Response(null, { status: 200 });
 }
