@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { AddToCartButton } from "@/components/add-to-cart-button";
-import { getShopProducts, formatPrice, type Product } from "@/lib/products";
+import { Price } from "@/components/price";
+import { getShopProducts, type Product } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "Shop | Paul Wayne Gregory Chocolates",
@@ -139,9 +140,14 @@ function ProductCardBody({ product }: { product: Product }) {
         </h3>
         {product.status !== "coming-soon" && (
           <span className="whitespace-nowrap text-sm text-paper-dim">
-            {product.availableForSale
-              ? formatPrice(product.price)
-              : "Sold Out"}
+            {product.availableForSale ? (
+              <Price
+                price={product.price}
+                compareAtPrice={product.compareAtPrice}
+              />
+            ) : (
+              "Sold Out"
+            )}
           </span>
         )}
       </div>

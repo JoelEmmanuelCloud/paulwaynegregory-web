@@ -81,6 +81,9 @@ const PRODUCTS_QUERY = `
         variants(first: 1) {
           nodes {
             id
+            compareAtPrice {
+              amount
+            }
           }
         }
       }
@@ -100,7 +103,9 @@ type ProductsQueryResult = {
         minVariantPrice: { amount: string; currencyCode: string };
       };
       images: { nodes: { url: string; altText: string | null }[] };
-      variants: { nodes: { id: string }[] };
+      variants: {
+        nodes: { id: string; compareAtPrice: { amount: string } | null }[];
+      };
     }[];
   };
 };
@@ -127,6 +132,7 @@ export type ShopifyProductSummary = {
   fields: Partial<Record<ProductFieldKey, string>>;
   availableForSale: boolean;
   price: number;
+  compareAtPrice: number | null;
   currencyCode: string;
   images: string[];
   variantId: string | null;
@@ -155,6 +161,9 @@ export async function fetchShopifyProducts(): Promise<
       ),
       availableForSale: node.availableForSale,
       price: Number(node.priceRange.minVariantPrice.amount),
+      compareAtPrice: node.variants.nodes[0]?.compareAtPrice
+        ? Number(node.variants.nodes[0].compareAtPrice.amount)
+        : null,
       currencyCode: node.priceRange.minVariantPrice.currencyCode,
       images: node.images.nodes.map((image) => image.url),
       variantId: node.variants.nodes[0]?.id ?? null,

@@ -6,7 +6,8 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductReviews, averageRating } from "@/components/product-reviews";
 import { Stars } from "@/components/stars";
-import { formatPrice, getProductBySlug } from "@/lib/products";
+import { Price } from "@/components/price";
+import { getProductBySlug } from "@/lib/products";
 import { siteEmails, siteUrl } from "@/lib/site-config";
 import { fetchApprovedReviews, isAdminConfigured } from "@/lib/shopify-admin";
 
@@ -125,10 +126,12 @@ export default async function ProductPage({
               <p className="tracked-label mt-3 text-xs text-accent">
                 {product.hook}
               </p>
-              <div className="mt-6 flex items-baseline gap-4">
-                <span className="text-lg text-paper">
-                  {formatPrice(product.price)}
-                </span>
+              <div className="mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                <Price
+                  price={product.price}
+                  compareAtPrice={product.compareAtPrice}
+                  size="large"
+                />
                 {product.weight && (
                   <span className="text-sm text-paper-dim">
                     Weight {product.weight}
