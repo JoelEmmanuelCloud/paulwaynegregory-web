@@ -86,6 +86,9 @@ const PRODUCTS_QUERY = `
         variants(first: 1) {
           nodes {
             id
+            price {
+              amount
+            }
             compareAtPrice {
               amount
             }
@@ -109,7 +112,11 @@ type ProductsQueryResult = {
       };
       images: { nodes: { url: string; altText: string | null }[] };
       variants: {
-        nodes: { id: string; compareAtPrice: { amount: string } | null }[];
+        nodes: {
+          id: string;
+          price: { amount: string };
+          compareAtPrice: { amount: string } | null;
+        }[];
       };
     }[];
   };
@@ -165,7 +172,10 @@ export async function fetchShopifyProducts(): Promise<
         ),
       ),
       availableForSale: node.availableForSale,
-      price: Number(node.priceRange.minVariantPrice.amount),
+      price: Number(
+        node.variants.nodes[0]?.price.amount ??
+          node.priceRange.minVariantPrice.amount,
+      ),
       compareAtPrice: node.variants.nodes[0]?.compareAtPrice
         ? Number(node.variants.nodes[0].compareAtPrice.amount)
         : null,
